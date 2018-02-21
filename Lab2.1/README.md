@@ -1,7 +1,7 @@
 # Lab 2.1
 For this lab we will use a device simulator to send "Temperature" measurements to an IoT Hub, save the messages to blob storage and report back to the device via an Azure Function if the “Temperature becomes too hot.
 
-![](/images/Architecture.png )
+![](images/Architecture.png )
 
 You can create the architecture in 2 ways
 By following a step-by-step guide
@@ -15,14 +15,14 @@ On the left pane choose Resource Groups
 Click the "+ Add" button to create a new Resource group
 Give the Resource group a name and choose North Europe as region
 
-![](/images/Create_resourcegroup.PNG)
+![](images/Create_resourcegroup.PNG)
 
 ### Create IoT Hub
 You might need to the refresh icon in Azure to see your new Resource group
 Select your new Resource group and then click the "+ Add" button to add an IoT hub
 Search for IoT Hub and then click “Create”
 
-![](/images/Search_IotHub.PNG "Search IoT Hub")
+![](images/Search_IotHub.PNG "Search IoT Hub")
 
 IoT Hub setting
 Give the IoT Hub a name 
@@ -30,7 +30,7 @@ Select the F1 pricing tier
 Use the Resource group you just created
 Location North Europe
 
-![](/images/Create_IotHub.PNG)
+![](images/Create_IotHub.PNG)
  
 Go back to your Resource group and verify that the IoT Hub there
 
@@ -43,7 +43,7 @@ Storage account settings
 * Location North Europe
 * Leave everything else with default settings
 
-![](/images/Create_StorageAccount.PNG)
+![](images/Create_StorageAccount.PNG)
 
 ### Create Stream Analytics Job
 
@@ -59,15 +59,15 @@ Click Input to create a new input for the Stream Analytics job
  
 Click the “Add Stream Input” button, select IoT Hub and setup it up to receive messages from your IoT Hub
 
-![](/images/StreamAnalytics_CreateInput.PNG)
+![](images/StreamAnalytics_CreateInput.PNG)
 
 Give the Stream Analytics job an output and select Blob storage as the output type
 
-![](/images/StreamAnalytics_SetupBlobStorage.PNG)
+![](images/StreamAnalytics_SetupBlobStorage.PNG)
  
 Edit the Stream Analytics Query by change the input to your IoT Hub name and the output to your Blob Storage name
 
-![](/images/StreamAnalytics_Query1.PNG)
+![](images/StreamAnalytics_Query1.PNG)
  
 Start the Stream Analytics job from the Stream Analytics Overview page
 Go to “Insert link to IoT Simulator” and download the simulator solution
