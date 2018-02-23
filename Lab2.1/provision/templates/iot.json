@@ -21,11 +21,6 @@
         "branch": "provision-lab2-1"
     },
     "parameters": {
-        "location": {
-            "type": "string",
-            "minLength": 4,
-            "defaultValue": "North Europe"
-        },
         "iotSkuName": {
             "type": "string",
             "allowedValues": [
@@ -83,7 +78,7 @@
             "apiVersion": "[variables('iotHubVersion')]",
             "type": "Microsoft.Devices/IotHubs",
             "name": "[variables('iotHubName')]",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "dependsOn": [],
             "sku": {
                 "name": "[parameters('iotSkuName')]",
@@ -91,7 +86,7 @@
                 "capacity": "[parameters('capacityUnits')]"
             },
             "properties": {
-                "parameters": "[parameters('location')]"
+                "parameters": "[resourceGroup().location]"
             },
             "tags": {
                 "displayName": "IoTHub"
@@ -147,7 +142,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Devices/Iothubs/', variables('iotHubName'))]",
                 "[concat('Microsoft.Web/Sites/', variables('functionAppName'))]",
-                
+                "[resourceId('Microsoft.Web/Sites/sourcecontrols', variables('functionAppName'), 'web')]",
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageNameCold'))]"
             ],
             "properties": {
@@ -303,7 +298,22 @@
                         }
                     ]
                 }
-            }
+            },
+            "resources": [
+                {
+                    "apiVersion": "2015-08-01",
+                    "name": "web",
+                    "type": "sourcecontrols",
+                    "dependsOn": [
+                        "[concat('Microsoft.Web/Sites/', variables('functionAppName'))]"
+                    ],
+                    "properties": {
+                        "RepoUrl": "[variables('repoURL')]",
+                        "branch": "[variables('branch')]",
+                        "IsManualIntegration": true
+                    }
+                }
+            ]
         }
     ],
     "outputs": {
