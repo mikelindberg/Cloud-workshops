@@ -147,7 +147,7 @@
             "dependsOn": [
                 "[concat('Microsoft.Devices/Iothubs/', variables('iotHubName'))]",
                 "[concat('Microsoft.Web/Sites/', variables('functionAppName'))]",
-                "[concat(resourceId('Microsoft.Web/Sites/', variables('functionAppName')),'/sourcontrols')]",
+                
                 "[concat('Microsoft.Storage/storageAccounts/', variables('storageNameCold'))]"
             ],
             "properties": {
@@ -161,7 +161,7 @@
                 "dataLocale": "en-US",
                 "Inputs": [
                     {
-                        "Name": "Hub",
+                        "Name": "iothub",
                         "Properties": {
                             "DataSource": {
                                 "Properties": {
@@ -185,7 +185,7 @@
                 ],
                 "Outputs": [
                     {
-                        "Name": "FunctionOutput",
+                        "Name": "functionOutput",
                         "Properties": {
                             "DataSource": {
                                 "type": "Microsoft.AzureFunction",
@@ -206,7 +206,7 @@
                         }
                     },
                     {
-                        "name": "blobloutput",
+                        "name": "blobOutput",
                         "properties": {
                             "datasource": {
                                 "type": "Microsoft.Storage/Blob",
@@ -303,22 +303,7 @@
                         }
                     ]
                 }
-            },
-            "resources": [
-                {
-                    "apiVersion": "2015-08-01",
-                    "name": "web",
-                    "type": "sourcecontrols",
-                    "dependsOn": [
-                        "[concat('Microsoft.Web/Sites/', variables('functionAppName'))]"
-                    ],
-                    "properties": {
-                        "RepoUrl": "[variables('repoURL')]",
-                        "branch": "[variables('branch')]",
-                        "IsManualIntegration": true
-                    }
-                }
-            ]
+            }
         }
     ],
     "outputs": {
