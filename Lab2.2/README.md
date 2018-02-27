@@ -24,6 +24,8 @@ To connect to your new Ubuntu vm you can use Putty.
 
 Go to your Ubuntu vm under your Resource Group and click "Connect". This will give you an SSH string which you should copy paste to Putty.
 
+![](images/Putty_ConnectionString.PNG )
+
 ### Install Docker
 Log on to your new Ubuntu vm and follow the Docker installation guide.
 <https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce-1>
@@ -58,7 +60,7 @@ Start the runtime:
 Check Docker to see that the IoT Edge agent is running as a module:
 > sudo docker ps
 
-![](images/docker-ps.PNG)
+![](images/docker-ps.png )
 
 ### Deploy a temperature sensor module
 One of the key capabilities of Azure IoT Edge is being able to deploy modules to your IoT Edge devices from the cloud. An IoT Edge module is an executable package implemented as a container. In this section, you deploy a module that generates telemetry for your simulated device. 
@@ -71,14 +73,14 @@ One of the key capabilities of Azure IoT Edge is being able to deploy modules to
 6. In the Image URI field, enter **microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview**. 
 7. Leave the other settings unchanged, and select Save.
 
-![](images/iot-edge-module.PNG)
+![](images/iot-edge-module.png )
 
 8. Back in the Add modules step, select Next.
 9. In the Specify routes step, select Next.
 10. In the Review template step, select Submit.
 11. Return to the device details page and select Refresh. You should see the new tempSensor module running along the IoT Edge runtime. 
 
-![](images/view-module.PNG)
+![](images/view-module.png )
 
 ### View generated data
 In this quickstart, you created a new IoT Edge device and installed the IoT Edge runtime on it. Then, you used the Azure portal to push an IoT Edge module to run on the device without having to make changes to the device itself. In this case, the module that you pushed creates environmental data that you can use for the tutorials. 
@@ -87,12 +89,12 @@ Open the command prompt on the computer running your simulated device again. Con
 
 >sudo docker ps
 
-![](images/docker-ps2.PNG)
+![](images/docker-ps2.png )
 
 View the messages being sent from the tempSensor module to the cloud:
 > sudo docker logs -f tempSensor
 
-![](images/docker-logs.PNG)
+![](images/docker-logs.png )
 
 ### Create a Stream Analytics job
 To deploy a Stream analytics job to the edge follow the this [Guide](https://docs.microsoft.com/en-us/azure/iot-edge/tutorial-deploy-stream-analytics#create-an-azure-stream-analytics-job)
