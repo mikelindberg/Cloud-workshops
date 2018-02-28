@@ -5,11 +5,8 @@
         "iotHubKeyName": "iothubowner",
         "iotHubVersion": "2017-07-01",
         "asaConsumerGroup": "streamanalyticscg",
-        "saVersion": "2016-03-01",
         "iotHubName": "[concat('iothubt-', parameters('deploymentPrefix'))]",
         "functionAppName": "[concat('funct', parameters('deploymentPrefix'))]",
-        "functionC2DAppName": "c2dmfunction",
-        "asaName": "[concat('asa', parameters('deploymentPrefix'))]",
         "hostingPlanName": "[concat('plan', substring(uniquestring(resourceGroup().id), 0, 10))]",
         "storageAccountName": "[concat('stor', uniquestring(resourceGroup().id))]",
         "webApiVersion": "2015-08-01",
@@ -132,110 +129,6 @@
                 "name": "Standard_LRS"
             },
             "kind": "Storage"
-        },
-        {
-            "type": "Microsoft.StreamAnalytics/StreamingJobs",
-            "apiVersion": "[variables('saVersion')]",
-            "name": "[variables('asaName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[concat('Microsoft.Devices/Iothubs/', variables('iotHubName'))]",
-                "[concat('Microsoft.Web/Sites/', variables('functionAppName'))]",
-                "[resourceId('Microsoft.Web/Sites/sourcecontrols', variables('functionAppName'), 'web')]",
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storageNameCold'))]"
-            ],
-            "properties": {
-                "sku": {
-                    "name": "Standard"
-                },
-                "outputErrorPolicy": "stop",
-                "eventsOutOfOrderPolicy": "adjust",
-                "eventsOutOfOrderMaxDelayInSeconds": 0,
-                "eventsLateArrivalMaxDelayInSeconds": 10,
-                "dataLocale": "en-US",
-                "Inputs": [
-                    {
-                        "Name": "iothub",
-                        "Properties": {
-                            "DataSource": {
-                                "Properties": {
-                                    "consumerGroupName": "[variables('asaConsumerGroup')]",
-                                    "iotHubNamespace": "[variables('iotHubName')]",
-                                    "sharedAccessPolicyKey": "[listkeys(variables('iotHubKeyResource'), variables('iotHubVersion')).primaryKey]",
-                                    "sharedAccessPolicyName": "[variables('iotHubKeyName')]",
-                                    "endpoint": "messages/events"
-                                },
-                                "Type": "Microsoft.Devices/IotHubs"
-                            },
-                            "Serialization": {
-                                "Properties": {
-                                    "Encoding": "UTF8"
-                                },
-                                "Type": "Json"
-                            },
-                            "Type": "Stream"
-                        }
-                    }
-                ],
-                "Outputs": [
-                    {
-                        "Name": "functionOutput",
-                        "Properties": {
-                            "DataSource": {
-                                "type": "Microsoft.AzureFunction",
-                                "properties": {
-                                    "functionAppName": "[variables('functionAppName')]",
-                                    "functionName": "c2dmfunction",
-                                    "apiKey": "[listsecrets(resourceId('Microsoft.Web/sites/functions', variables('functionAppName'), variables('functionC2DAppName')),'2015-08-01').key]"
-                                    
-                                }
-                            },
-                            "Serialization": {
-                                "Properties": {
-                                    "Encoding": "UTF8",
-                                    "Format": "Array"
-                                },
-                                "Type": "Json"
-                            }
-                        }
-                    },
-                    {
-                        "name": "blobOutput",
-                        "properties": {
-                            "datasource": {
-                                "type": "Microsoft.Storage/Blob",
-                                "properties": {
-                                    "blobPathPrefix": "",
-                                    "storageAccounts": [
-                                        {
-                                            "accountName": "[variables('storageNameCold')]",
-                                            "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageNameCold')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
-                                        }
-                                    ],
-                                    "container": "telemterycold",
-                                    "pathPattern": "",
-                                    "dateFormat": "yyyy/MM/dd",
-                                    "timeFormat": "HH"
-                                }
-                            },
-                            "serialization": {
-                                "type": "Json",
-                                "properties": {
-                                    "encoding": "UTF8",
-                                    "format": "Array"
-                                }
-                            }
-                        }
-                    }
-                ],
-                "transformation": {
-                    "name": "Transformation",
-                    "properties": {
-                        "streamingUnits": "[parameters('numberOfStreamingUnits')]",
-                        "query": "SELECT\r\n    *\r\nINTO\r\n    [blobOutput]\r\nFROM\r\n    [iothub]\r\nSELECT \r\n    * \r\nINTO\r\n   [functionOutput]\r\nFROM \r\n    [iothub]\r\nWHERE Sensor.Temperature > 30.0\r\n"
-                    }
-                }
-            }
         },
         {
             "type": "Microsoft.Web/serverfarms",
