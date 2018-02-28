@@ -28,7 +28,7 @@ Go to your Ubuntu vm under your Resource Group and click "Connect". This will gi
 
 ### Install Docker
 Log on to your new Ubuntu vm and follow the Docker installation guide.
-<https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-docker-ce-1>
+<https://docs.docker.com/install/linux/docker-ce/ubuntu>
 
 On your Ubuntu vm install Python with the following command.
 >sudo apt-get install python-pip
