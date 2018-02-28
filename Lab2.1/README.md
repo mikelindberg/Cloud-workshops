@@ -69,18 +69,18 @@ Edit the Stream Analytics Query by change the input to your IoT Hub name and the
 
 ![](images/StreamAnalytics_Query1.PNG)
  
-Start the Stream Analytics job from the Stream Analytics Overview page
-Go to “Insert link to IoT Simulator” and download the simulator solution
-Go to IoT Hub ? IoT Devices
-On the IoT Devices page click   and give the IoT device a name e.g. Simulator
-After you created a new device click refresh on the IoT Device page until the new device appears.
-Select the device and copy the Connection string and add it to the iotDeviceConnectionString in the Simulator app
-Start the solution and verify that the simulator is sending messages to:
-IoT Hub – Look on the IoT Hub Overview page and see “Usage”
-Stream Analytics Job – Look on the Stream Analytics Overview page and see “Monitoring” there should be events coming in
-Under your storage account go to Blobs ? select your container ? drill down to the lowest level of the folder structure and verify that there is a payload
-Stop the Stream Analytics job
-Add Function App to your Resource group.
+1. Start the Stream Analytics job from the Stream Analytics Overview page
+2. Go and [download the Git repo from](https://github.com/mikelindberg/Cloud-workshops)
+3. Go to IoT Hub and click IoT Devices
+4. On the IoT Devices page click   and give the IoT device a name e.g. Simulator
+5. After you created a new device click refresh on the IoT Device page until the new device appears.
+6. Select the device and copy the Connection string and add it to the iotDeviceConnectionString in the Simulator app
+7. Start the solution and verify that the simulator is sending messages to:
+8. IoT Hub – Look on the IoT Hub Overview page and see “Usage”
+9. Stream Analytics Job – Look on the Stream Analytics Overview page and see “Monitoring” there should be events coming in
+10. Under your storage account go to Blobs ? select your container ? drill down to the lowest level of the folder structure and verify that there is a payload
+11. Stop the Stream Analytics job
+12. Add Function App to your Resource group.
  
 In the settings for the Function App select North Europe as location
  
@@ -135,9 +135,25 @@ class SensorInfo
 }
 ```
 
+Under your Function go to View Files and add a new file called project.json
 
+Make sure that the content of the file is like below
+
+```json
+{
+  "frameworks": {
+  "net46":{
+    "dependencies": {
+      "Microsoft.Azure.Devices": "1.4.1",
+      "Microsoft.Azure.Amqp": "2.0.0"
+      }
+    }
+  }
+}
+```
 
 Start the Function
+
 Start the Stream Analytics job (wait with next step until it is started)
 Run the Device Simulator
 Verify that the “Temperature” reaches 30+ degrees, then stops for 10 seconds and then restarts at 25 degrees
