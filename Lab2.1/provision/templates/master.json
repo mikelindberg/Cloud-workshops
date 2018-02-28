@@ -62,7 +62,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://github.com/mikelindberg/Cloud-workshops/blob/master/Lab2.1/provision/templates/iot.json"
+                    "uri": "https://raw.githubusercontent.com/mikelindberg/Cloud-workshops/master/Lab2.1/provision/templates/iot.json"
                 },
                 "parameters": {
                     "deploymentPrefix": {
@@ -84,11 +84,13 @@
             "name": "asajob",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2016-09-01",
-            "dependsOn": ["[resourceId('Microsoft.Resources/deployments', 'iotresouces')]"],
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'iotresouces')]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://github.com/mikelindberg/Cloud-workshops/blob/master/Lab2.1/provision/templates/asa.json"
+                    "uri": "https://raw.githubusercontent.com/mikelindberg/Cloud-workshops/master/Lab2.1/provision/templates/asa.json"
                 },
                 "parameters": {
                     "numberOfStreamingUnits": {

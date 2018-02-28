@@ -46,7 +46,7 @@ Write-host "$scriptDir/templates/iot.json"
  New-AzureRmResourceGroupDeployment -Verbose -Force -ErrorAction Stop `
     -Name "iot" `
     -ResourceGroupName $RGName `
-    -TemplateFile "$scriptDir/templates/iot.json" `
+    -TemplateFile "$scriptDir/templates/master.json" `
     -deploymentPrefix $DeploymentPrefix
 
 
