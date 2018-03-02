@@ -143,7 +143,7 @@ class SensorInfo
 }
 ```
 
-4. Under your Function go to View Files and add a new file called project.json
+4. The **connectionString** variable should get the value from your IoT Hub/ Shared access policies/ service / connection string primary key
 
 Make sure that the content of the file is like below
 
@@ -160,7 +160,7 @@ Make sure that the content of the file is like below
 }
 ```
 
-5. The **connectionString** variable should get the value from your IoT Hub/ Shared access policies/ service / connection string primary key
+5. Under your Function go to View Files and add a new file called project.json
 
 Start the Function
 
