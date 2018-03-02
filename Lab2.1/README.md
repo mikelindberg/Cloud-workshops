@@ -75,16 +75,24 @@ Edit the Stream Analytics Query by change the input to your IoT Hub name and the
 4. On the IoT Devices page click   and give the IoT device a name e.g. Simulator
 5. After you created a new device click refresh on the IoT Device page until the new device appears.
 6. Select the device and copy the Connection string and add it to the iotDeviceConnectionString in the Simulator app
-7. Start the solution and verify that the simulator is sending messages to:
-8. IoT Hub – Look on the IoT Hub Overview page and see “Usage”
-9. Stream Analytics Job – Look on the Stream Analytics Overview page and see “Monitoring” there should be events coming in
-10. Under your storage account go to Blobs ? select your container ? drill down to the lowest level of the folder structure and verify that there is a payload
-11. Stop the Stream Analytics job
-12. Add Function App to your Resource group.
+
+### Run solution and verify data
+Start the solution and verify that the simulator is sending messages to
+1. IoT Hub: Look on the IoT Hub Overview page and see “Usage”
+2. Stream Analytics Job: Look on the Stream Analytics Overview page and see “Monitoring” there should be events coming in
+3. Under your storage account go to Blobs, select your container, drill down to the lowest level of the folder structure and verify that there is a payload
+4. Stop the Stream Analytics job
+
+### Create an Azure Function App
+
+Go back to your Resource group and add an Azure Function App.
  
-In the settings for the Function App select North Europe as location
- 
-Create a new function (select HTTP trigger) under the Function App and copy paste the following code instead of the default code
+1. In the settings for the Function App select North Europe as location 
+2. Create a new function (select HTTP trigger)
+
+![](images/Create_NewFunction.PNG)
+
+3. In the Function App run.csx file copy/paste the following code instead of the default code
 
 ```csharp
 #r "Newtonsoft.Json"
@@ -135,7 +143,7 @@ class SensorInfo
 }
 ```
 
-Under your Function go to View Files and add a new file called project.json
+4. Under your Function go to View Files and add a new file called project.json
 
 Make sure that the content of the file is like below
 
@@ -151,6 +159,8 @@ Make sure that the content of the file is like below
   }
 }
 ```
+
+5. The **connectionString** variable should get the value from your IoT Hub/ Shared access policies/ service / connection string primary key
 
 Start the Function
 

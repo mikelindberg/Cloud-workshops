@@ -14,4 +14,4 @@ Microsoft IoT Central is a fully managed IoT SaaS (software-as-a-service) soluti
 10. Click **New** and select **Simulated**
 11. Go to **Rules** and click the **High Temperature Alert**
 12. Enable the alert on all devices in the template
-13. Wait to receive an email and the disable the rule again.
+13. Wait to receive an email and then disable the rule again.
