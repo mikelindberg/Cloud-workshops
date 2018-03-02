@@ -165,6 +165,28 @@ class SensorInfo
 
 ### Update your Stream Analytics job
 
+1. Add the new function as an Output to your Stream Analytics job
+
+![](images/StreamAnalytics_SetupFunction.PNG)
+
+2. Update your Stream Analytics query so it is like below (define inputs and outputs with aliases you provided)
+
+```sql
+SELECT
+    *
+INTO
+    [outputblob]
+FROM
+    [iothubinput]
+
+    SELECT 
+    * 
+    INTO
+    [functionOutput]
+    FROM 
+    [iothubinput]
+    WHERE Sensor.Temperature > 30.0
+```
 
 Start the Stream Analytics job (wait with next step until it is started)
 Run the Device Simulator
