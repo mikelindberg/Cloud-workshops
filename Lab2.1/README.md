@@ -72,9 +72,9 @@ Edit the Stream Analytics Query by change the input to your IoT Hub name and the
 1. Start the Stream Analytics job from the Stream Analytics Overview page
 2. Go and [download the Git repo from](https://github.com/mikelindberg/Cloud-workshops)
 3. Go to IoT Hub and click IoT Devices
-4. On the IoT Devices page click   and give the IoT device a name e.g. Simulator
+4. On the IoT Devices page click **"Add"** and give the IoT device a name e.g. **Simulator**
 5. After you created a new device click refresh on the IoT Device page until the new device appears.
-6. Select the device and copy the Connection string and add it to the iotDeviceConnectionString in the Simulator app
+6. Select the device and copy the Connection string you will need this to run the **Device Simulator** app. [Follow the Device simulator guide](https://github.com/mikelindberg/Cloud-workshops/tree/master/Device_Simulator)
 
 ### Run solution and verify data
 Start the solution and verify that the simulator is sending messages to
@@ -161,7 +161,10 @@ class SensorInfo
 }
 ```
 
-Start the Function
+7. Restart the Function
+
+### Update your Stream Analytics job
+
 
 Start the Stream Analytics job (wait with next step until it is started)
 Run the Device Simulator
