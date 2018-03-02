@@ -188,6 +188,7 @@ FROM
     WHERE Sensor.Temperature > 30.0
 ```
 
+
 Start the Stream Analytics job (wait with next step until it is started)
 Run the Device Simulator
 Verify that the “Temperature” reaches 30+ degrees, then stops for 10 seconds and then restarts at 25 degrees
