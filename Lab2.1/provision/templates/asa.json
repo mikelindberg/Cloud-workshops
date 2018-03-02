@@ -1,0 +1,147 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "variables": {
+        "iotHubKeyName": "iothubowner",
+        "iotHubVersion": "2017-07-01",
+        "asaConsumerGroup": "streamanalyticscg",
+        "saVersion": "2016-03-01",
+        "iotHubName": "[concat('iothubt-', parameters('deploymentPrefix'))]",
+        "functionAppName": "[concat('funct', parameters('deploymentPrefix'))]",
+        "functionC2DAppName": "c2dmfunction",
+        "asaName": "[concat('asa', parameters('deploymentPrefix'))]",
+        "storageNameCold": "[concat('cold', substring(uniquestring(resourceGroup().id), 0, 10))]",
+        "iotHubKeyResource": "[resourceId('Microsoft.Devices/Iothubs/Iothubkeys', variables('iotHubName'), variables('iotHubKeyName'))]"
+    },
+    "parameters": {
+        "numberOfStreamingUnits": {
+            "type": "int",
+            "minValue": 1,
+            "maxValue": 48,
+            "allowedValues": [
+                1,
+                3,
+                6,
+                12,
+                18,
+                24,
+                30,
+                36,
+                42,
+                48
+            ],
+            "metadata": {
+                "description": "Number of Streaming Units"
+            },
+            "defaultValue": 1
+        },
+        "deploymentPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the function app that you wish to create."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.StreamAnalytics/StreamingJobs",
+            "apiVersion": "[variables('saVersion')]",
+            "name": "[variables('asaName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+            ],
+            "properties": {
+                "sku": {
+                    "name": "Standard"
+                },
+                "outputErrorPolicy": "stop",
+                "eventsOutOfOrderPolicy": "adjust",
+                "eventsOutOfOrderMaxDelayInSeconds": 0,
+                "eventsLateArrivalMaxDelayInSeconds": 10,
+                "dataLocale": "en-US",
+                "Inputs": [
+                    {
+                        "Name": "iothub",
+                        "Properties": {
+                            "DataSource": {
+                                "Properties": {
+                                    "consumerGroupName": "[variables('asaConsumerGroup')]",
+                                    "iotHubNamespace": "[variables('iotHubName')]",
+                                    "sharedAccessPolicyKey": "[listkeys(variables('iotHubKeyResource'), variables('iotHubVersion')).primaryKey]",
+                                    "sharedAccessPolicyName": "[variables('iotHubKeyName')]",
+                                    "endpoint": "messages/events"
+                                },
+                                "Type": "Microsoft.Devices/IotHubs"
+                            },
+                            "Serialization": {
+                                "Properties": {
+                                    "Encoding": "UTF8"
+                                },
+                                "Type": "Json"
+                            },
+                            "Type": "Stream"
+                        }
+                    }
+                ],
+                "Outputs": [
+                    {
+                        "Name": "functionOutput",
+                        "Properties": {
+                            "DataSource": {
+                                "type": "Microsoft.AzureFunction",
+                                "properties": {
+                                    "functionAppName": "[variables('functionAppName')]",
+                                    "functionName": "c2dmfunction",
+                                    "apiKey": "[listsecrets(resourceId('Microsoft.Web/sites/functions', variables('functionAppName'), variables('functionC2DAppName')),'2015-08-01').key]"
+                                    
+                                }
+                            },
+                            "Serialization": {
+                                "Properties": {
+                                    "Encoding": "UTF8",
+                                    "Format": "Array"
+                                },
+                                "Type": "Json"
+                            }
+                        }
+                    },
+                    {
+                        "name": "blobOutput",
+                        "properties": {
+                            "datasource": {
+                                "type": "Microsoft.Storage/Blob",
+                                "properties": {
+                                    "blobPathPrefix": "",
+                                    "storageAccounts": [
+                                        {
+                                            "accountName": "[variables('storageNameCold')]",
+                                            "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageNameCold')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                                        }
+                                    ],
+                                    "container": "telemterycold",
+                                    "pathPattern": "",
+                                    "dateFormat": "yyyy/MM/dd",
+                                    "timeFormat": "HH"
+                                }
+                            },
+                            "serialization": {
+                                "type": "Json",
+                                "properties": {
+                                    "encoding": "UTF8",
+                                    "format": "Array"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "transformation": {
+                    "name": "Transformation",
+                    "properties": {
+                        "streamingUnits": "[parameters('numberOfStreamingUnits')]",
+                        "query": "SELECT\r\n    *\r\nINTO\r\n    [blobOutput]\r\nFROM\r\n    [iothub]\r\nSELECT \r\n    * \r\nINTO\r\n   [functionOutput]\r\nFROM \r\n    [iothub]\r\nWHERE Sensor.Temperature > 30.0\r\n"
+                    }
+                }
+            }
+        }
+    ]
+}
