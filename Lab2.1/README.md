@@ -1,11 +1,15 @@
 # Lab 2.1
-For this lab we will use a device simulator to send "Temperature" measurements to an IoT Hub, save the messages to blob storage and report back to the device via an Azure Function if the ìTemperature becomes too hot.
+For this lab we will use a device simulator to send "Temperature" measurements to an IoT Hub, save the messages to blob storage and report back to the device via an Azure Function if the ‚ÄúTemperature becomes too hot.
 
 ![](images/Architecture.png )
 
 You can create the architecture in 2 ways
 By following a step-by-step guide
-By clicking this button (insert button)
+By provisioning the Azure resources through a template: 
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmikelindberg%2FCloud-workshops%2Fmaster%2FLab2.1%2Fprovision%2Ftemplates%2Fmaster.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+Then continue the lab below but skip the provisioning of actual Azure resources (IoT Hub, Stream Analytics, Function, Storage).
 
 ## Step-by-step guide
 Sign in to <http://portal.azure.com>
@@ -20,7 +24,7 @@ Give the Resource group a name and choose North Europe as region
 ### Create IoT Hub
 You might need to the refresh icon in Azure to see your new Resource group
 Select your new Resource group and then click the "+ Add" button to add an IoT hub
-Search for IoT Hub and then click ìCreateî
+Search for IoT Hub and then click ‚ÄúCreate‚Äù
 
 ![](images/Search_IotHub.PNG "Search IoT Hub")
 
@@ -57,7 +61,7 @@ Stream Analytics Job setting
 Go back to your Resource group and select the Stream Analytics job
 Click Input to create a new input for the Stream Analytics job
  
-Click the ìAdd Stream Inputî button, select IoT Hub and setup it up to receive messages from your IoT Hub
+Click the ‚ÄúAdd Stream Input‚Äù button, select IoT Hub and setup it up to receive messages from your IoT Hub
 
 ![](images/StreamAnalytics_CreateInput.PNG)
 
@@ -78,8 +82,8 @@ Edit the Stream Analytics Query by change the input to your IoT Hub name and the
 
 ### Run solution and verify data
 Start the solution and verify that the simulator is sending messages to
-1. IoT Hub: Look on the IoT Hub Overview page and see ìUsageî
-2. Stream Analytics Job: Look on the Stream Analytics Overview page and see ìMonitoringî there should be events coming in
+1. IoT Hub: Look on the IoT Hub Overview page and see ‚ÄúUsage‚Äù
+2. Stream Analytics Job: Look on the Stream Analytics Overview page and see ‚ÄúMonitoring‚Äù there should be events coming in
 3. Under your storage account go to Blobs, select your container, drill down to the lowest level of the folder structure and verify that there is a payload
 4. Stop the Stream Analytics job
 
@@ -191,4 +195,4 @@ FROM
 
 Start the Stream Analytics job (wait with next step until it is started)
 Run the Device Simulator
-Verify that the ìTemperatureî reaches 30+ degrees, then stops for 10 seconds and then restarts at 25 degrees
+Verify that the ‚ÄúTemperature‚Äù reaches 30+ degrees, then stops for 10 seconds and then restarts at 25 degrees
