@@ -1,14 +1,16 @@
+
 # Lab 2.1
 For this lab we will use a device simulator to send "Temperature" measurements to an IoT Hub, save the messages to blob storage and report back to the device via an Azure Function if the “Temperature becomes too hot.
 
 ![](images/Architecture.png )
 
-You can create the architecture in 2 ways
-By following a step-by-step guide
-By provisioning the Azure resources through a template: 
+You can create the architecture in 2 ways:
+1. By following a step-by-step guide
+2. By provisioning the Azure resources through a template: 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmikelindberg%2FCloud-workshops%2Fmaster%2FLab2.1%2Fprovision%2Ftemplates%2Fmaster.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
+
 Then continue the lab below but skip the provisioning of actual Azure resources (IoT Hub, Stream Analytics, Function, Storage).
 
 ## Step-by-step guide
