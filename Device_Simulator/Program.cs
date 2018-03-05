@@ -18,12 +18,22 @@ namespace simulatornet
         static DeviceClient deviceClient;
         static string iotDeviceConnectionString = "Insert IoT Device connection string";
 
-        static string deviceId = "Insert IoT Device Id/Name";
-
         static bool isRunning = true;
 
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+
+                Console.WriteLine("Argument index 0 not found: the Device IoT Hub connection string. Press any key to exit.");
+                Console.ReadLine();
+                return;
+            }
+            else
+            {
+                iotDeviceConnectionString = args[0].ToString();
+            }
+
             Console.WriteLine("Simulated device\n");
 
             InitDeviceClient().Wait();
@@ -104,7 +114,7 @@ namespace simulatornet
                     temperature += 0.20;
 
                 MessageBody messageBody = new MessageBody();
-                SensorInfo sensor = new SensorInfo() { DeviceId = deviceId };
+                SensorInfo sensor = new SensorInfo();
 
                 sensor.Temperature = temperature;
                 messageBody.MessageId = messageId++;
@@ -127,8 +137,6 @@ namespace simulatornet
             {
                 Console.WriteLine($"Direct Method ({methodRequest.Name}) invoked...  ");
                 Console.WriteLine("Returning response for method {0}", methodRequest.Name);
-
-
                 isRunning = false;
             }
             return Task.FromResult(new MethodResponse(System.Text.Encoding.UTF8.GetBytes(result), 200));
@@ -144,7 +152,6 @@ namespace simulatornet
 
     class SensorInfo
     {
-        public string DeviceId { get; set; }
         public double Temperature { get; set; }
     }
 }
