@@ -61,7 +61,7 @@
                 "dataLocale": "en-US",
                 "Inputs": [
                     {
-                        "Name": "iothub",
+                        "Name": "iothubinput",
                         "Properties": {
                             "DataSource": {
                                 "Properties": {
