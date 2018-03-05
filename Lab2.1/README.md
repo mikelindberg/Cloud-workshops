@@ -1,4 +1,4 @@
-
+﻿
 # Lab 2.1
 For this lab we will use a device simulator to send "Temperature" measurements to an IoT Hub, save the messages to blob storage and report back to the device via an Azure Function if the “Temperature becomes too hot.
 
@@ -115,17 +115,17 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     var content = req.Content;
     string jsonContent = content.ReadAsStringAsync().Result;
     log.Info($"Payload: {jsonContent}");
-    var messageItem = JsonConvert.DeserializeObject<MessageBody[]>(jsonContent);
+    var messageItem = JsonConvert.DeserializeObject<Sensor[]>(jsonContent);
 
-    var connectionString = "Insert IoT Hub Connection string";
+    var connectionString = "HostName=iotworkshophub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=cjyec5hNP9aJVyf/AbBxBIFph9A8jo8+a+DY+AK8ar4=";
     // create IoT Hub connection.
     var serviceClient = ServiceClient.CreateFromConnectionString(connectionString, Microsoft.Azure.Devices.TransportType.Amqp);
     var methodInvocation = new CloudToDeviceMethod("Off") { ResponseTimeout = TimeSpan.FromSeconds(10) };
 
-    log.Info($"Ready to send DM to device {messageItem[0].Sensor.DeviceId}");
+    log.Info($"Ready to send DM to device {messageItem[0].DeviceId}");
 
     //send DM
-    var response = await serviceClient.InvokeDeviceMethodAsync(messageItem[0].Sensor.DeviceId, methodInvocation);
+    var response = await serviceClient.InvokeDeviceMethodAsync(messageItem[0].DeviceId, methodInvocation);
 }
 catch(System.Exception ex) {
   log.Info(ex.Message);
@@ -135,17 +135,9 @@ catch(System.Exception ex) {
 return new HttpResponseMessage(HttpStatusCode.OK);
 }
 
-class MessageBody
-{
-	public SensorInfo Sensor { get; set; }
-	public DateTime TimeCreated { get; set; } = DateTime.Now;
-	public int MessageId { get; set; }
-}
-
-class SensorInfo
+class Sensor
 {
   public string DeviceId { get; set; }
-  public double Temperature { get; set; }
 }
 ```
 
