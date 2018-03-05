@@ -117,7 +117,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
     log.Info($"Payload: {jsonContent}");
     var messageItem = JsonConvert.DeserializeObject<Sensor[]>(jsonContent);
 
-    var connectionString = "HostName=iotworkshophub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=cjyec5hNP9aJVyf/AbBxBIFph9A8jo8+a+DY+AK8ar4=";
+    var connectionString = "<Connection String>";
     // create IoT Hub connection.
     var serviceClient = ServiceClient.CreateFromConnectionString(connectionString, Microsoft.Azure.Devices.TransportType.Amqp);
     var methodInvocation = new CloudToDeviceMethod("Off") { ResponseTimeout = TimeSpan.FromSeconds(10) };
