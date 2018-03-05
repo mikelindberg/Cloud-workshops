@@ -138,7 +138,7 @@
                     "name": "Transformation",
                     "properties": {
                         "streamingUnits": "[parameters('numberOfStreamingUnits')]",
-                        "query": "SELECT\r\n    *\r\nINTO\r\n    [blobOutput]\r\nFROM\r\n    [iothub]\r\nSELECT \r\n    * \r\nINTO\r\n   [functionOutput]\r\nFROM \r\n    [iothub]\r\nWHERE Sensor.Temperature > 30.0\r\n"
+                        "query": "SELECT\r\n*\r\nINTO\r\n    [outputblob]\r\nFROM\r\n    [iothubinput]\r\n\r\n    SELECT \r\n    IoTHub.ConnectionDeviceId DeviceId\r\n    INTO\r\n    [functionOutput]\r\n    FROM \r\n    [iothubinput]\r\n    WHERE Sensor.Temperature > 30.0"
                     }
                 }
             }
