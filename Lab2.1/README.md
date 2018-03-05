@@ -171,14 +171,14 @@ class Sensor
 
 ```sql
 SELECT
-    *
+*
 INTO
     [outputblob]
 FROM
     [iothubinput]
 
     SELECT 
-    * 
+    IoTHub.ConnectionDeviceId DeviceId
     INTO
     [functionOutput]
     FROM 
