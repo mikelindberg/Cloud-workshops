@@ -13,17 +13,17 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
         var content = req.Content;
         string jsonContent = content.ReadAsStringAsync().Result;
         log.Info($"Payload: {jsonContent}");
-        var messageItem = JsonConvert.DeserializeObject<MessageBody[]>(jsonContent);
+        var messageItem = JsonConvert.DeserializeObject<Sensor[]>(jsonContent);
 
         var connectionString = GetEnvironmentVariable("Azure_IoT_ConnectionString");
         // create IoT Hub connection.
         var serviceClient = ServiceClient.CreateFromConnectionString(connectionString, Microsoft.Azure.Devices.TransportType.Amqp);
         var methodInvocation = new CloudToDeviceMethod("Off") { ResponseTimeout = TimeSpan.FromSeconds(10) };
 
-        log.Info($"Ready to send DM to device {messageItem[0].Sensor.DeviceId}");
+        log.Info($"Ready to send DM to device {messageItem[0].DeviceId}");
 
         //send DM
-        var response = await serviceClient.InvokeDeviceMethodAsync(messageItem[0].Sensor.DeviceId, methodInvocation);
+        var response = await serviceClient.InvokeDeviceMethodAsync(messageItem[0].DeviceId, methodInvocation);
 
     }
     catch (System.Exception ex)
@@ -31,21 +31,14 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceW
         log.Info(ex.Message);
         return new HttpResponseMessage(HttpStatusCode.InternalServerError);
     }
+    
     return new HttpResponseMessage(HttpStatusCode.OK);
 }
-class MessageBody
-{
-    public SensorInfo Sensor { get; set; }
-    public DateTime TimeCreated { get; set; } = DateTime.Now;
-    public int MessageId { get; set; }
-}
 
-class SensorInfo
+class Sensor
 {
-    public string DeviceId { get; set; }
-    public double Temperature { get; set; }
+  public string DeviceId { get; set; }
 }
-
 public static string GetEnvironmentVariable(string name)
 {
     return System.Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
