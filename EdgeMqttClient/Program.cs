@@ -22,10 +22,20 @@ namespace EdgeMqttClient
 
     class Program
     {
+        //Connection string for IoT Hub - This will be read from the Edge hub
         static string connectionString = "Insert IoT Device connection string";
+
+        //Client to write to IoT Hub
         static DeviceClient ioTHubModuleClient;
+
+        //MQTTClient
+        static MqttClient mqttClient;
+
+        //MQTT Server - This setting will be read from the Module Twin Properties
         static string mqttServer = "";
-        static string topic = "";
+
+        //MQTT topics - This setting will be read from the Module Twin Properties
+        static string topic;
 
         static void Main(string[] args)
         {
@@ -88,6 +98,7 @@ namespace EdgeMqttClient
         {
             Console.WriteLine("Connection String {0}", connectionString);
 
+            //Set up MQTT client to IoT Hub
             MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
             // During dev you might want to bypass the cert verification. It is highly recommended to verify certs systematically in production
             if (bypassCertVerification)
@@ -100,35 +111,68 @@ namespace EdgeMqttClient
             ioTHubModuleClient = DeviceClient.CreateFromConnectionString(connectionString, settings);
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub MQTT module client initialized.");
-
+            
+            //Set up MQTT client for reading from queue
             //Read module twin properties
             var moduleTwin = await ioTHubModuleClient.GetTwinAsync();
             var moduleTwinCollection = moduleTwin.Properties.Desired;
 
-            mqttServer = moduleTwinCollection["MQTTServer"] != null ? moduleTwinCollection["MQTTServer"] : "";
-            topic = moduleTwinCollection["Topic"] != null ? moduleTwinCollection["Topic"] : "";
+            mqttServer = moduleTwinCollection.Contains("MQTTServer") ? moduleTwinCollection["MQTTServer"] : "";
+            Console.WriteLine("MQTT Server: " + mqttServer);
 
-            // create client instance 
-            MqttClient client = new MqttClient(mqttServer);
+            topic = moduleTwinCollection.Contains("Topic") ? moduleTwinCollection["Topic"] : "";
+            Console.WriteLine("Topic: " + topic);
 
-            // register to message received 
-            client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
+            //Try and initialize MQTT client
+            bool clientInitialized = InitializeMqttClient();
+            if (clientInitialized == false)
+            {
+                Console.WriteLine("Unable to initialize MQTT client");
+            }
+        }
 
-            string clientId = Guid.NewGuid().ToString();
-            client.Connect(clientId);
+        //Initialize the MQTT Client
+        static bool InitializeMqttClient()
+        {
+            bool clientInitialized = false;
 
-            // subscribe to the topic with QoS 0
-            client.Subscribe(new string[] { topic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+            if (String.IsNullOrEmpty(mqttServer))
+            {
+                return clientInitialized;
+            }
+
+            try
+            {
+                // create client instance 
+                mqttClient = new MqttClient(mqttServer);
+
+                // register to message received 
+                mqttClient.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
+
+                string clientId = Guid.NewGuid().ToString();
+                mqttClient.Connect(clientId);
+
+                // subscribe to the topic with QoS 0
+                mqttClient.Subscribe(new string[] { topic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+
+                clientInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return clientInitialized;
         }
 
         static async void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            if (ioTHubModuleClient != null)
+            if (mqttClient != null && mqttClient.IsConnected == true)
             {
                 var str = System.Text.Encoding.Default.GetString(e.Message);
-                Console.WriteLine(str);
                 MessageBody msgBody = new MessageBody();
 
+                msgBody.topic = e.Topic;
                 msgBody.payload = str;
                 msgBody.timeCreated = DateTime.Now;
                 var messageString = JsonConvert.SerializeObject(msgBody);
@@ -140,11 +184,20 @@ namespace EdgeMqttClient
                     Console.WriteLine("Sending message: " + messageString);
                 }
             }
+            else
+            {
+                bool clientInitialized = InitializeMqttClient();
+                if (clientInitialized == false)
+                {
+                    Console.WriteLine("Unable to initialize MQTT client");
+                }
+            }
         }
     }
 
     class MessageBody
     {
+        public string topic { get; set; }
         public string payload { get; set; }
         public DateTime timeCreated { get; set; }
     }
