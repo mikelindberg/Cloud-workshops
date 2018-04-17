@@ -1,4 +1,4 @@
-namespace EdgeMqttClient
+namespace ImageCaptureModule
 {
     using System;
     using System.IO;
@@ -10,37 +10,20 @@ namespace EdgeMqttClient
     using System.Threading.Tasks;
     using Microsoft.Azure.Devices.Client;
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
-    using System.Collections.Generic;     // for KeyValuePair<>
-    using Microsoft.Azure.Devices.Shared; // for TwinCollection
-    using Newtonsoft.Json;                // for JsonConvert
-    using uPLibrary.Networking.M2Mqtt;
-    using uPLibrary.Networking.M2Mqtt.Exceptions;
-    using uPLibrary.Networking.M2Mqtt.Messages;
-    using uPLibrary.Networking.M2Mqtt.Session;
-    using uPLibrary.Networking.M2Mqtt.Utility;
-    using uPLibrary.Networking.M2Mqtt.Internal;
+    using OpenCvSharp;
 
     class Program
     {
-        //Connection string for IoT Hub - This will be read from the Edge hub
-        static string connectionString = "Insert IoT Device connection string";
-
-        //Client to write to IoT Hub
         static DeviceClient ioTHubModuleClient;
 
-        //MQTTClient
-        static MqttClient mqttClient;
+        static int cameraIndex = 0;
 
-        //MQTT Server - This setting will be read from the Module Twin Properties
-        static string mqttServer = "";
-
-        //MQTT topics - This setting will be read from the Module Twin Properties
-        static string topic;
+        static int latencyInMiliseconds = 1000;
 
         static void Main(string[] args)
         {
             // The Edge runtime gives us the connection string we need -- it is injected as an environment variable
-            connectionString = Environment.GetEnvironmentVariable("EdgeHubConnectionString");
+            string connectionString = Environment.GetEnvironmentVariable("EdgeHubConnectionString");
 
             // Cert verification is not yet fully functional when using Windows OS for the container
             bool bypassCertVerification = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
@@ -98,7 +81,6 @@ namespace EdgeMqttClient
         {
             Console.WriteLine("Connection String {0}", connectionString);
 
-            //Set up MQTT client to IoT Hub
             MqttTransportSettings mqttSetting = new MqttTransportSettings(TransportType.Mqtt_Tcp_Only);
             // During dev you might want to bypass the cert verification. It is highly recommended to verify certs systematically in production
             if (bypassCertVerification)
@@ -110,96 +92,53 @@ namespace EdgeMqttClient
             // Open a connection to the Edge runtime
             ioTHubModuleClient = DeviceClient.CreateFromConnectionString(connectionString, settings);
             await ioTHubModuleClient.OpenAsync();
-            Console.WriteLine("IoT Hub MQTT module client initialized.");
-            
-            //Set up MQTT client for reading from queue
+            Console.WriteLine("IoT Hub module client initialized.");
+
             //Read module twin properties
             var moduleTwin = await ioTHubModuleClient.GetTwinAsync();
             var moduleTwinCollection = moduleTwin.Properties.Desired;
 
-            mqttServer = moduleTwinCollection.Contains("MQTTServer") ? moduleTwinCollection["MQTTServer"] : "";
-            Console.WriteLine("MQTT Server: " + mqttServer);
+            cameraIndex = moduleTwinCollection.Contains("CameraIndex") ? moduleTwinCollection["CameraIndex"] : "";
+            Console.WriteLine("Camera Index: " + cameraIndex);
 
-            topic = moduleTwinCollection.Contains("Topic") ? moduleTwinCollection["Topic"] : "";
-            Console.WriteLine("Topic: " + topic);
+            latencyInMiliseconds = moduleTwinCollection.Contains("LatencyInMiliseconds") ? moduleTwinCollection["LatencyInMiliseconds"] : "";
+            Console.WriteLine("LatencyInMiliseconds: " + latencyInMiliseconds);
 
-            //Try and initialize MQTT client
-            bool clientInitialized = InitializeMqttClient();
-            if (clientInitialized == false)
-            {
-                Console.WriteLine("Unable to initialize MQTT client");
-            }
+            //Start capturing images
+            CaptureImage();
         }
 
-        //Initialize the MQTT Client
-        static bool InitializeMqttClient()
+        static async void CaptureImage()
         {
-            bool clientInitialized = false;
+            // Opens MP4 file (ffmpeg is probably needed)
+            var capture = new VideoCapture(cameraIndex);
+            int sleepTime = latencyInMiliseconds;
 
-            if (String.IsNullOrEmpty(mqttServer))
+            // Frame image buffer
+            Mat image = new Mat();
+
+            while (true)
             {
-                return clientInitialized;
-            }
-
-            try
-            {
-                // create client instance 
-                mqttClient = new MqttClient(mqttServer);
-
-                // register to message received 
-                mqttClient.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
-
-                string clientId = Guid.NewGuid().ToString();
-                mqttClient.Connect(clientId);
-
-                // subscribe to the topic with QoS 0
-                mqttClient.Subscribe(new string[] { topic }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
-
-                clientInitialized = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return clientInitialized;
-        }
-
-        //Subcription method to the MQTT server
-        static async void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
-        {
-            if (mqttClient != null && mqttClient.IsConnected == true)
-            {
-                var str = System.Text.Encoding.Default.GetString(e.Message);
-                MessageBody msgBody = new MessageBody();
-
-                msgBody.topic = e.Topic;
-                msgBody.payload = str;
-                msgBody.timeCreated = DateTime.Now;
-                var messageString = JsonConvert.SerializeObject(msgBody);
-
-                if (!string.IsNullOrEmpty(messageString))
+                try
                 {
-                    var message = new Message(Encoding.ASCII.GetBytes(messageString));
-                    await ioTHubModuleClient.SendEventAsync("mqttclient", message);
-                    Console.WriteLine("Sending message: " + messageString);
+                    //Read image
+                    capture.Read(image); // same as cvQueryFrame
+
+                    //Convert to Message
+                    var message = new Message(image.ToBytes("capture.png"));
+
+                    //Send message to Edge Hub or IoT Hub
+                    await ioTHubModuleClient.SendEventAsync("imagebasestring", message);
+
+                    Console.WriteLine("Sending image");
+                    Cv2.WaitKey(sleepTime);
                 }
-            }
-            else
-            {
-                bool clientInitialized = InitializeMqttClient();
-                if (clientInitialized == false)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Unable to initialize MQTT client");
+                    Console.WriteLine(ex.Message);
+                    System.Threading.Thread.Sleep(sleepTime);
                 }
             }
         }
-    }
-
-    class MessageBody
-    {
-        public string topic { get; set; }
-        public string payload { get; set; }
-        public DateTime timeCreated { get; set; }
     }
 }
