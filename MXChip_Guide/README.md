@@ -64,7 +64,9 @@ Give the Stream Analytics job an output and select Blob storage as the output ty
  
 Edit the Stream Analytics Query by change the input to your IoT Hub name and the output to your Blob Storage name
 
+
 ![](images/StreamAnalytics_Query1.PNG)
+
  
 1. Start the Stream Analytics job from the Stream Analytics Overview page
 2. Go to IoT Hub and click IoT Devices
