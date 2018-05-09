@@ -63,7 +63,7 @@ namespace simulatornet
 
             //callback for generic direct method calls
             //todo change the callback to actual method name and finalize callback implementation
-            deviceClient.SetMethodHandlerAsync("Off", SwitchOff, null).Wait();
+            deviceClient.SetMethodHandlerAsync("WriteBack", SwitchOff, null).Wait();
         }
 
         static Task onDesiredPropertiesUpdate(TwinCollection desiredProperties, object userContext)

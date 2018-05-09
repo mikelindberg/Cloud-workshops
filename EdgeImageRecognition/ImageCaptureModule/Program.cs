@@ -94,49 +94,57 @@ namespace ImageCaptureModule
             await ioTHubModuleClient.OpenAsync();
             Console.WriteLine("IoT Hub module client initialized.");
 
-            //Read module twin properties
-            var moduleTwin = await ioTHubModuleClient.GetTwinAsync();
-            var moduleTwinCollection = moduleTwin.Properties.Desired;
+            try
+            {
+                //Read module twin properties
+                var moduleTwin = await ioTHubModuleClient.GetTwinAsync();
+                var moduleTwinCollection = moduleTwin.Properties.Desired;
 
-            cameraIndex = moduleTwinCollection.Contains("CameraIndex") ? moduleTwinCollection["CameraIndex"] : "";
-            Console.WriteLine("Camera Index: " + cameraIndex);
+                cameraIndex = moduleTwinCollection.Contains("CameraIndex") ? (int)moduleTwinCollection["CameraIndex"] : cameraIndex;
+                Console.WriteLine("Camera Index: " + cameraIndex);
 
-            latencyInMiliseconds = moduleTwinCollection.Contains("LatencyInMiliseconds") ? moduleTwinCollection["LatencyInMiliseconds"] : "";
-            Console.WriteLine("LatencyInMiliseconds: " + latencyInMiliseconds);
-
+                latencyInMiliseconds = moduleTwinCollection.Contains("LatencyInMiliseconds") ? moduleTwinCollection["LatencyInMiliseconds"] : latencyInMiliseconds;
+                Console.WriteLine("LatencyInMiliseconds: " + latencyInMiliseconds);
+            }
+            catch (System.Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             //Start capturing images
             CaptureImage();
         }
 
         static async void CaptureImage()
         {
-            // Opens MP4 file (ffmpeg is probably needed)
-            var capture = new VideoCapture(cameraIndex);
-            int sleepTime = latencyInMiliseconds;
-
-            // Frame image buffer
-            Mat image = new Mat();
-
             while (true)
             {
                 try
                 {
+                    // Opens MP4 file (ffmpeg is probably needed)
+                    var capture = new VideoCapture(cameraIndex);
+
+                    // Frame image buffer
+                    Mat image = new Mat();
+
                     //Read image
                     capture.Read(image); // same as cvQueryFrame
 
                     //Convert to Message
-                    var message = new Message(image.ToBytes("capture.png"));
+                    // var message = new Message(image.ToBytes("capture.png"));
+                    string test = "Hello world";
+                    byte[] bArray = Encoding.UTF8.GetBytes(test);
 
+                    var message = new Message(bArray);
                     //Send message to Edge Hub or IoT Hub
                     await ioTHubModuleClient.SendEventAsync("imagebasestring", message);
 
                     Console.WriteLine("Sending image");
-                    Cv2.WaitKey(sleepTime);
+                    Cv2.WaitKey(latencyInMiliseconds);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    System.Threading.Thread.Sleep(sleepTime);
+                    System.Threading.Thread.Sleep(latencyInMiliseconds);
                 }
             }
         }
