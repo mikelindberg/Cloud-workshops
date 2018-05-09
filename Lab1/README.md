@@ -11,7 +11,7 @@ Microsoft IoT Central is a fully managed IoT SaaS (software-as-a-service) soluti
 7. Choose the **Free 30 day trial**
 8. Create the IoT Central application
 9. In the IoT Central click **View all your devices**
-10. Click **New** and select **Simulated**
+10. Click **New** and select **Simulated** or if you have a MXChip select Real and follow the IoT Central guide <https://docs.microsoft.com/en-us/azure/iot-central/howto-connect-devkit>.
 11. Go to **Rules** and click the **High Temperature Alert**
 12. Enable the alert on all devices in the template
 13. Wait to receive an email and then disable the rule again.
